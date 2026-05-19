@@ -3,13 +3,21 @@
 
 <head>
 
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StudyAI</title>
 
-<title>Summora AI</title>
+<!-- Bootstrap -->
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+rel="stylesheet"
+/>
+
+<!-- jsPDF -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 
@@ -25,7 +33,7 @@ body{
     color:white;
 }
 
-/* Navbar */
+/* NAVBAR */
 
 .navbar{
     background: rgba(255,255,255,0.05);
@@ -38,14 +46,14 @@ body{
     color:#38bdf8 !important;
 }
 
-/* Hero */
+/* HERO SECTION */
 
 .hero{
     min-height:100vh;
     display:flex;
     align-items:center;
     justify-content:center;
-    padding:50px 20px;
+    padding:60px 20px;
 }
 
 .hero-text h1{
@@ -63,10 +71,10 @@ body{
     color:#cbd5e1;
 }
 
-/* Upload Card */
+/* UPLOAD CARD */
 
 .upload-card{
-    background:rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.08);
     border-radius:20px;
     padding:30px;
     text-align:center;
@@ -77,31 +85,22 @@ body{
     border:2px dashed #38bdf8;
     padding:40px;
     border-radius:15px;
-    cursor:pointer;
     transition:0.3s;
 }
 
 .upload-box:hover{
-    background:rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.05);
 }
 
-textarea{
-    background:#0f172a !important;
-    color:white !important;
-    border:none !important;
-}
-
-textarea::placeholder{
-    color:#94a3b8 !important;
-}
+/* BUTTON */
 
 .btn-custom{
     background:#38bdf8;
-    color:white;
     border:none;
+    color:white;
     padding:12px 25px;
     border-radius:10px;
-    font-size:16px;
+    font-size:18px;
     transition:0.3s;
 }
 
@@ -109,25 +108,16 @@ textarea::placeholder{
     background:#0ea5e9;
 }
 
-.notes-card{
-    background:rgba(255,255,255,0.08);
-    border-radius:20px;
-    padding:25px;
-    margin-top:20px;
-    text-align:left;
-    white-space:pre-wrap;
-}
-
-/* Features */
+/* FEATURES */
 
 .features{
     padding:80px 20px;
 }
 
 .feature-card{
-    background:rgba(255,255,255,0.08);
-    padding:30px;
+    background: rgba(255,255,255,0.08);
     border-radius:20px;
+    padding:30px;
     transition:0.3s;
     height:100%;
 }
@@ -136,11 +126,20 @@ textarea::placeholder{
     transform:translateY(-10px);
 }
 
-.feature-card h3{
-    margin-top:15px;
+/* OUTPUT */
+
+.output-box{
+    background: rgba(255,255,255,0.08);
+    border-radius:20px;
+    padding:25px;
+    margin-top:30px;
+    max-height:500px;
+    overflow-y:auto;
+    white-space:pre-wrap;
+    text-align:left;
 }
 
-/* Footer */
+/* FOOTER */
 
 footer{
     text-align:center;
@@ -148,7 +147,7 @@ footer{
     color:#94a3b8;
 }
 
-/* Responsive */
+/* RESPONSIVE */
 
 @media(max-width:768px){
 
@@ -168,21 +167,52 @@ footer{
 
 <body>
 
-<!-- Navbar -->
+<!-- NAVBAR -->
 
 <nav class="navbar navbar-expand-lg navbar-dark px-4">
 
 <div class="container-fluid">
 
 <a class="navbar-brand" href="#">
-Summora AI
+StudyAI
 </a>
+
+<button
+class="navbar-toggler"
+type="button"
+data-bs-toggle="collapse"
+data-bs-target="#menu"
+>
+
+<span class="navbar-toggler-icon"></span>
+
+</button>
+
+<div class="collapse navbar-collapse" id="menu">
+
+<ul class="navbar-nav ms-auto">
+
+<li class="nav-item mx-2">
+<a class="nav-link" href="#">Home</a>
+</li>
+
+<li class="nav-item mx-2">
+<a class="nav-link" href="#">Features</a>
+</li>
+
+<li class="nav-item mx-2">
+<a class="nav-link" href="#">Notes</a>
+</li>
+
+</ul>
+
+</div>
 
 </div>
 
 </nav>
 
-<!-- Hero -->
+<!-- HERO SECTION -->
 
 <section class="hero">
 
@@ -190,97 +220,118 @@ Summora AI
 
 <div class="row align-items-center">
 
+<!-- LEFT -->
+
 <div class="col-lg-6 hero-text">
 
 <h1>
-Your <span>Multi-Agent AI</span> Study Assistant
+Turn PDFs Into
+<span>Smart Revision Notes</span>
 </h1>
 
 <p>
-Upload PDFs or paste notes to generate smart summaries,
-quizzes, and revision notes instantly.
+Upload your study PDFs and instantly get
+AI-generated summaries, revision points,
+and quizzes.
 </p>
 
 </div>
+
+<!-- RIGHT -->
 
 <div class="col-lg-6 mt-5 mt-lg-0">
 
 <div class="upload-card">
 
 <h2 class="mb-4">
-Upload Study Material
+Upload PDF
 </h2>
 
-<!-- Upload Box -->
-
-<div 
-class="upload-box"
-onclick="document.getElementById('pdfInput').click()"
->
-
-<h4>📄 Upload PDF</h4>
-
-<p class="mt-3" id="fileName">
-Click to browse your study material
-</p>
+<div class="upload-box">
 
 <input
 type="file"
 id="pdfInput"
-hidden
 accept=".pdf"
-onchange="showFileName()"
->
+class="form-control"
+/>
+
+<p id="fileName" class="mt-3 text-info"></p>
 
 </div>
 
-<!-- Textarea -->
+<!-- MODE -->
 
-<textarea
-id="notesInput"
-class="form-control mt-4"
-rows="6"
-placeholder="Paste your study notes here..."
-></textarea>
-
-<!-- Buttons -->
-
-<div class="mt-4 d-flex gap-3 justify-content-center flex-wrap">
-
-<button 
-class="btn-custom"
-onclick="processNotes('summary')"
+<select
+id="mode"
+class="form-select mt-4"
 >
-Summary Agent
+
+<option value="summary">
+Summary
+</option>
+
+<option value="revision">
+Revision Notes
+</option>
+
+<option value="quiz">
+Quiz Questions
+</option>
+
+</select>
+
+<!-- BUTTON -->
+
+<button
+id="generateBtn"
+class="btn-custom mt-4"
+>
+
+Generate Notes
+
 </button>
 
-<button 
-class="btn-custom"
-onclick="processNotes('quiz')"
+<!-- LOADING -->
+
+<div
+id="loading"
+class="mt-4"
+style="display:none;"
 >
-Quiz Agent
-</button>
 
-<button 
-class="btn-custom"
-onclick="processNotes('revision')"
->
-Revision Agent
-</button>
+<div
+class="spinner-border text-info"
+role="status"
+></div>
 
-</div>
-
-<!-- Response -->
-
-<div class="notes-card">
-
-<h3>AI Response</h3>
-
-<p id="responseText" class="mt-3">
-Your AI response will appear here...
+<p class="mt-3">
+Generating AI response...
 </p>
 
 </div>
+
+<!-- OUTPUT -->
+
+<div
+id="output"
+class="output-box"
+style="display:none;"
+>
+
+</div>
+
+<!-- DOWNLOAD -->
+
+<button
+id="downloadBtn"
+class="btn btn-info mt-4"
+style="display:none;"
+>
+
+Download PDF
+
+</button>
 
 </div>
 
@@ -292,14 +343,14 @@ Your AI response will appear here...
 
 </section>
 
-<!-- Features -->
+<!-- FEATURES -->
 
 <section class="features">
 
 <div class="container">
 
 <h1 class="text-center mb-5">
-Amazing Features
+Features
 </h1>
 
 <div class="row g-4">
@@ -308,12 +359,14 @@ Amazing Features
 
 <div class="feature-card text-center">
 
-<h1>📝</h1>
+<h1>📄</h1>
 
-<h3>Smart Notes</h3>
+<h3 class="mt-3">
+PDF Upload
+</h3>
 
-<p>
-Generate summarized notes instantly.
+<p class="mt-3">
+Upload study material easily.
 </p>
 
 </div>
@@ -326,10 +379,12 @@ Generate summarized notes instantly.
 
 <h1>🧠</h1>
 
-<h3>Quiz Generator</h3>
+<h3 class="mt-3">
+AI Notes
+</h3>
 
-<p>
-Generate AI quizzes automatically.
+<p class="mt-3">
+Generate smart revision notes instantly.
 </p>
 
 </div>
@@ -340,12 +395,14 @@ Generate AI quizzes automatically.
 
 <div class="feature-card text-center">
 
-<h1>⚡</h1>
+<h1>⬇</h1>
 
-<h3>Revision Mode</h3>
+<h3 class="mt-3">
+Download PDF
+</h3>
 
-<p>
-Create quick revision points instantly.
+<p class="mt-3">
+Save notes as downloadable PDF.
 </p>
 
 </div>
@@ -358,65 +415,97 @@ Create quick revision points instantly.
 
 </section>
 
-<!-- Footer -->
+<!-- FOOTER -->
 
 <footer>
-© 2026 Summora AI | Multi-Agent Learning Assistant 🚀
+
+© 2026 StudyAI | Built for Students 🚀
+
 </footer>
 
-<!-- Script -->
+<!-- JAVASCRIPT -->
 
 <script>
 
-function showFileName() {
+const pdfInput =
+document.getElementById("pdfInput");
 
-    const fileInput =
-    document.getElementById("pdfInput");
+const fileName =
+document.getElementById("fileName");
 
-    const fileName =
-    fileInput.files[0]?.name;
+const generateBtn =
+document.getElementById("generateBtn");
 
-    if (fileName) {
+const output =
+document.getElementById("output");
 
-        document.getElementById("fileName").innerText =
-        fileName;
+const loading =
+document.getElementById("loading");
 
-    }
+const downloadBtn =
+document.getElementById("downloadBtn");
 
-}
+const mode =
+document.getElementById("mode");
 
-async function processNotes(mode) {
+// FILE NAME DISPLAY
 
-    const notes =
-    document.getElementById("notesInput").value;
+pdfInput.addEventListener("change", function(){
 
-    const pdfFile =
-    document.getElementById("pdfInput").files[0];
+    const file = this.files[0];
 
-    const formData = new FormData();
+    if(file){
 
-    formData.append("notes", notes);
-
-    formData.append("mode", mode);
-
-    if (pdfFile) {
-
-        formData.append("pdf", pdfFile);
+        fileName.innerText =
+        "Selected: " + file.name;
 
     }
 
-    document.getElementById("responseText").innerText =
-    "Generating AI response...";
+});
 
-    try {
+// GENERATE NOTES
+
+generateBtn.addEventListener("click", async () => {
+
+    const file =
+    pdfInput.files[0];
+
+    if(!file){
+
+        alert("Please upload a PDF");
+
+        return;
+
+    }
+
+    const formData =
+    new FormData();
+
+    formData.append("pdf", file);
+
+    formData.append("mode", mode.value);
+
+    // UI
+
+    loading.style.display = "block";
+
+    output.style.display = "none";
+
+    downloadBtn.style.display = "none";
+
+    generateBtn.disabled = true;
+
+    generateBtn.innerText =
+    "Generating...";
+
+    try{
 
         const response =
-        await fetch("http://localhost:3000/process", {
-
-            method:"POST",
-
-            body:formData,
-
+        await fetch(
+        "http://localhost:3000/process",
+        {
+            method: "POST",
+            body: formData,
         });
 
         const data =
@@ -424,36 +513,79 @@ async function processNotes(mode) {
 
         console.log(data);
 
-        if (data.reply) {
+        loading.style.display = "none";
 
-            document.getElementById("responseText").innerText =
+        output.style.display = "block";
+
+        if(data.reply){
+
+            output.innerHTML =
             data.reply;
+
+            window.generatedNotes =
+            data.reply;
+
+            downloadBtn.style.display =
+            "inline-block";
 
         }
 
-        else {
+        else{
 
-            document.getElementById("responseText").innerText =
-            data.error || "No response generated";
+            output.innerHTML =
+            data.error || "No response received";
 
         }
 
     }
 
-    catch(error) {
+    catch(error){
 
         console.log(error);
 
-        document.getElementById("responseText").innerText =
+        loading.style.display = "none";
+
+        output.style.display = "block";
+
+        output.innerHTML =
         "Server connection failed";
 
     }
 
-}
+    generateBtn.disabled = false;
+
+    generateBtn.innerText =
+    "Generate Notes";
+
+});
+
+// DOWNLOAD PDF
+
+downloadBtn.addEventListener("click", () => {
+
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF();
+
+    const text =
+    window.generatedNotes || "";
+
+    const splitText =
+    doc.splitTextToSize(text, 180);
+
+    doc.text(splitText, 10, 10);
+
+    doc.save("StudyAI-Notes.pdf");
+
+});
 
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap JS -->
+
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
 
 </body>
 
