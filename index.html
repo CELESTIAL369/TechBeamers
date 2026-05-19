@@ -485,7 +485,7 @@ generateBtn.addEventListener("click", async () => {
 
     formData.append("mode", mode.value);
 
-    // UI
+    // RESET UI
 
     loading.style.display = "block";
 
@@ -508,18 +508,32 @@ generateBtn.addEventListener("click", async () => {
             body: formData,
         });
 
+        // CHECK RESPONSE
+
+        if(!response.ok){
+
+            throw new Error(
+            "Server responded with error"
+            );
+
+        }
+
         const data =
         await response.json();
 
-        console.log(data);
+        console.log("AI RESPONSE:", data);
+
+        // STOP LOADING
 
         loading.style.display = "none";
 
         output.style.display = "block";
 
+        // DISPLAY RESPONSE
+
         if(data.reply){
 
-            output.innerHTML =
+            output.innerText =
             data.reply;
 
             window.generatedNotes =
@@ -532,8 +546,9 @@ generateBtn.addEventListener("click", async () => {
 
         else{
 
-            output.innerHTML =
-            data.error || "No response received";
+            output.innerText =
+            data.error ||
+            "No response generated";
 
         }
 
@@ -541,16 +556,18 @@ generateBtn.addEventListener("click", async () => {
 
     catch(error){
 
-        console.log(error);
+        console.log("FRONTEND ERROR:", error);
 
         loading.style.display = "none";
 
         output.style.display = "block";
 
-        output.innerHTML =
-        "Server connection failed";
+        output.innerText =
+        "Failed to generate response";
 
     }
+
+    // RESET BUTTON
 
     generateBtn.disabled = false;
 
