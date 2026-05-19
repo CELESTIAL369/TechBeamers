@@ -9,212 +9,120 @@ const fs = require("fs");
 
 const app = express();
 
-// ===================================
-// MIDDLEWARE
-// ===================================
-
 app.use(cors());
 
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
-// ===================================
-// GROQ CLIENT
-// ===================================
-
 const client = new OpenAI({
-
   apiKey: process.env.GROQ_API_KEY,
-
   baseURL: "https://api.groq.com/openai/v1",
-
 });
-
-// ===================================
-// MULTER CONFIG
-// ===================================
 
 const upload = multer({
-
   dest: "uploads/",
-
-  limits: {
-    fileSize: 5 * 1024 * 1024,
-  },
-
-  fileFilter: (req, file, cb) => {
-
-    if (file.mimetype === "application/pdf") {
-
-      cb(null, true);
-
-    }
-
-    else {
-
-      cb(new Error("Only PDF files are allowed"));
-
-    }
-
-  },
-
 });
 
-// ===================================
-// MAIN ROUTE
-// ===================================
-
 app.post(
-
   "/process",
-
   upload.single("pdf"),
-
   async (req, res) => {
+
+    console.log("BODY:", req.body);
+
+    console.log("FILE:", req.file);
 
     try {
 
-      // ===================================
-      // CHECK FILE
-      // ===================================
+      let notes = req.body.notes || "";
 
-      if (!req.file) {
+      const mode = req.body.mode;
 
-        return res.status(400).json({
+      // PDF Processing
 
-          success: false,
+      if (req.file) {
 
-          error: "Please upload a PDF file",
+        console.log("PDF RECEIVED");
 
-        });
+        const pdfBuffer =
+        fs.readFileSync(req.file.path);
+
+        const pdfData =
+        await pdfParse(pdfBuffer);
+
+        notes = pdfData.text;
+
+        console.log("PDF TEXT EXTRACTED");
+
+        // delete uploaded file
+
+        fs.unlinkSync(req.file.path);
 
       }
 
-      // ===================================
-      // READ PDF
-      // ===================================
+      // Empty input check
 
-      const pdfBuffer =
-      fs.readFileSync(req.file.path);
-
-      // ===================================
-      // EXTRACT TEXT
-      // ===================================
-
-      const pdfData =
-      await pdfParse(pdfBuffer);
-
-      let notes =
-      pdfData.text.trim();
-
-      // DELETE FILE
-
-      fs.unlinkSync(req.file.path);
-
-      // ===================================
-      // CHECK EXTRACTION
-      // ===================================
-
-      if (!notes || notes.length < 20) {
+      if (!notes || notes.trim() === "") {
 
         return res.status(400).json({
-
-          success: false,
-
           error:
-          "Could not extract text from PDF. Use typed PDFs only.",
-
+          "Please provide notes or upload a PDF",
         });
 
       }
-
-      // ===================================
-      // LIMIT HUGE PDFs
-      // ===================================
-
-      notes = notes.substring(0, 4000);
-
-      // ===================================
-      // MODE
-      // ===================================
-
-      const mode =
-      req.body.mode || "summary";
-
-      // ===================================
-      // PROMPT
-      // ===================================
 
       let prompt = "";
 
-      // SUMMARY
+      // Summary Agent
 
       if (mode === "summary") {
 
         prompt = `
-You are an AI study assistant.
+        Summarize these notes clearly:
 
-Generate clean study notes.
-
-Include:
-- Summary
-- Important points
-- Easy explanation
-
-Notes:
-${notes}
-`;
+        ${notes}
+        `;
 
       }
 
-      // REVISION
-
-      else if (mode === "revision") {
-
-        prompt = `
-Convert these notes into revision notes.
-
-Use:
-- Headings
-- Bullet points
-- Short explanations
-
-Notes:
-${notes}
-`;
-
-      }
-
-      // QUIZ
+      // Quiz Agent
 
       else if (mode === "quiz") {
 
         prompt = `
-Generate 5 quiz questions with answers.
+        Generate 5 quiz questions from these notes:
 
-Notes:
-${notes}
-`;
+        ${notes}
+        `;
 
       }
 
-      // DEFAULT
+      // Revision Agent
+
+      else if (mode === "revision") {
+
+        prompt = `
+        Convert these notes into quick revision points:
+
+        ${notes}
+        `;
+
+      }
+
+      // Default Agent
 
       else {
 
         prompt = `
-Summarize these notes clearly.
+        Summarize these notes:
 
-Notes:
-${notes}
-`;
+        ${notes}
+        `;
 
       }
 
-      // ===================================
-      // GROQ AI REQUEST
-      // ===================================
+      console.log("SENDING TO AI");
 
       const completion =
       await client.chat.completions.create({
@@ -222,64 +130,37 @@ ${notes}
         model: "llama-3.1-8b-instant",
 
         messages: [
-
           {
             role: "user",
             content: prompt,
           },
-
         ],
 
       });
 
-      // ===================================
-      // AI RESPONSE
-      // ===================================
+      console.log("AI RESPONSE RECEIVED");
 
       const reply =
       completion.choices[0].message.content;
 
-      // ===================================
-      // SEND RESPONSE
-      // ===================================
-
       res.json({
-
-        success: true,
-
         reply: reply,
-
       });
 
     }
 
-    // ===================================
-    // ERROR HANDLING
-    // ===================================
-
     catch (error) {
 
-      console.log(error);
+      console.log("ERROR:", error);
 
       res.status(500).json({
-
-        success: false,
-
-        error: error.message ||
-
-        "Something went wrong",
-
+        error: "Something went wrong",
       });
 
     }
 
   }
-
 );
-
-// ===================================
-// SERVER
-// ===================================
 
 app.listen(3000, () => {
 
