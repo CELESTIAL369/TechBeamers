@@ -9,20 +9,28 @@ const fs = require("fs");
 
 const app = express();
 
+// MIDDLEWARE
+
 app.use(cors());
 
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
+// GROQ CLIENT
+
 const client = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
   baseURL: "https://api.groq.com/openai/v1",
 });
 
+// MULTER
+
 const upload = multer({
   dest: "uploads/",
 });
+
+// MAIN ROUTE
 
 app.post(
   "/process",
@@ -35,7 +43,7 @@ app.post(
 
       const mode = req.body.mode;
 
-      // PDF Processing
+      // PDF PROCESSING
 
       if (req.file) {
 
@@ -51,18 +59,18 @@ app.post(
 
         console.log("PDF TEXT EXTRACTED");
 
-        // delete uploaded file
+        // DELETE TEMP FILE
 
         fs.unlinkSync(req.file.path);
 
       }
 
-      // Empty input validation
+      // VALIDATION
 
       if (!notes || notes.trim() === "") {
 
         return res.send(
-          "Please provide notes or upload a PDF"
+          "Please upload PDF or paste notes"
         );
 
       }
@@ -74,10 +82,10 @@ app.post(
       if (mode === "summary") {
 
         prompt = `
-        Summarize these notes clearly:
+Summarize these notes clearly:
 
-        ${notes}
-        `;
+${notes}
+`;
 
       }
 
@@ -86,10 +94,10 @@ app.post(
       else if (mode === "quiz") {
 
         prompt = `
-        Generate 5 quiz questions from these notes:
+Generate 5 quiz questions from these notes:
 
-        ${notes}
-        `;
+${notes}
+`;
 
       }
 
@@ -98,10 +106,10 @@ app.post(
       else if (mode === "revision") {
 
         prompt = `
-        Convert these notes into quick revision points:
+Convert these notes into quick revision points:
 
-        ${notes}
-        `;
+${notes}
+`;
 
       }
 
@@ -110,14 +118,16 @@ app.post(
       else {
 
         prompt = `
-        Summarize these notes:
+Summarize these notes:
 
-        ${notes}
-        `;
+${notes}
+`;
 
       }
 
       console.log("SENDING TO AI");
+
+      // AI REQUEST
 
       const completion =
       await client.chat.completions.create({
@@ -138,7 +148,7 @@ app.post(
       const reply =
       completion.choices[0].message.content;
 
-      // SEND CLEAN TEXT RESPONSE
+      // SEND CLEAN TEXT
 
       res.send(reply);
 
@@ -157,8 +167,12 @@ app.post(
   }
 );
 
+// SERVER
+
 app.listen(3000, () => {
 
-  console.log("Server running on port 3000");
+  console.log(
+    "Server running on port 3000"
+  );
 
 });
