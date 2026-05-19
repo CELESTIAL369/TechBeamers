@@ -178,6 +178,35 @@
             overflow: visible !important;
         }
 
+        .flashcard {
+
+            background: white;
+
+            border-radius: 20px;
+
+            padding: 20px;
+
+            margin-bottom: 20px;
+
+            color: black;
+
+            box-shadow:
+                0 5px 15px rgba(0, 0, 0, 0.2);
+
+        }
+
+        .flashcard pre {
+
+            white-space: pre-wrap;
+
+            color: black;
+
+            font-family: Arial;
+
+            font-size: 16px;
+
+        }
+
         /* FOOTER */
 
         footer {
@@ -317,6 +346,10 @@
                                 Quiz Questions
                             </option>
 
+                            <option value="flashcards">
+                                Flashcards
+                            </option>
+
                         </select>
 
                         <!-- BUTTON -->
@@ -451,10 +484,7 @@
                         <p>Voice-based note interaction and learning.</p>
                     </div>
 
-                    <div class="col-md-3">
-                        <h3>📝 OCR Notes</h3>
-                        <p>Extract notes directly from handwritten images.</p>
-                    </div>
+                   
 
                     <div class="col-md-3">
                         <h3>🌍 Multi-language</h3>
@@ -746,6 +776,7 @@
                 const text =
                     await response.text();
 
+
                 console.log(text);
 
                 // SHOW OUTPUT
@@ -756,8 +787,47 @@
                 output.style.display =
                     "block";
 
-                responseText.innerText =
-                    text;
+                if (mode.value === "flashcards") {
+
+                    const flashcards =
+                        text
+                            .split("===CARD===")
+                            .filter(card =>
+                                card.trim() !== ""
+                            );
+                    let flashHTML = "";
+
+                    flashcards.forEach(card => {
+
+                        if (card.trim() !== "") {
+
+                            flashHTML += `
+
+            <div class="flashcard">
+
+                <pre>${card}</pre>
+
+            </div>
+
+            `;
+
+                        }
+
+                    });
+
+                    responseText.innerHTML =
+                        flashHTML;
+
+                }
+
+                else {
+
+                    responseText.innerText =
+                        text;
+
+                }
+
+
 
                 // STORE NOTES
 

@@ -64,80 +64,80 @@ app.post(
       console.log("========== NEW REQUEST ==========");
 
       let notes =
-      req.body.notes || "";
+        req.body.notes || "";
 
       const mode =
-      req.body.mode || "summary";
+        req.body.mode || "summary";
 
       // ======================
-// PDF PROCESSING
-// ======================
+      // PDF PROCESSING
+      // ======================
 
-if (req.file) {
+      if (req.file) {
 
-    try {
+        try {
 
-        console.log("PDF RECEIVED");
+          console.log("PDF RECEIVED");
 
-        // READ PDF
+          // READ PDF
 
-        const pdfBuffer =
-        fs.readFileSync(
-            req.file.path
-        );
-
-        // EXTRACT TEXT
-
-        const pdfData =
-        await pdfParse(
-            pdfBuffer
-        );
-
-        notes =
-        pdfData.text;
-
-        console.log(
-        "PDF TEXT EXTRACTED"
-        );
-
-    }
-
-    catch (pdfError) {
-
-        console.log(
-        "PDF PARSE ERROR:",
-        pdfError.message
-        );
-
-        return res
-        .status(400)
-        .send(
-        "Invalid or unsupported PDF file"
-        );
-
-    }
-
-    finally {
-
-        // DELETE TEMP FILE
-
-        if (
-            fs.existsSync(req.file.path)
-        ) {
-
-            fs.unlinkSync(
-                req.file.path
+          const pdfBuffer =
+            fs.readFileSync(
+              req.file.path
             );
 
-            console.log(
-            "TEMP FILE DELETED"
+          // EXTRACT TEXT
+
+          const pdfData =
+            await pdfParse(
+              pdfBuffer
+            );
+
+          notes =
+            pdfData.text;
+
+          console.log(
+            "PDF TEXT EXTRACTED"
+          );
+
+        }
+
+        catch (pdfError) {
+
+          console.log(
+            "PDF PARSE ERROR:",
+            pdfError.message
+          );
+
+          return res
+            .status(400)
+            .send(
+              "Invalid or unsupported PDF file"
             );
 
         }
 
-    }
+        finally {
 
-}
+          // DELETE TEMP FILE
+
+          if (
+            fs.existsSync(req.file.path)
+          ) {
+
+            fs.unlinkSync(
+              req.file.path
+            );
+
+            console.log(
+              "TEMP FILE DELETED"
+            );
+
+          }
+
+        }
+
+      }
 
       // ======================
       // VALIDATION
@@ -153,10 +153,10 @@ if (req.file) {
         );
 
         return res
-        .status(400)
-        .send(
-          "Please upload PDF or paste notes"
-        );
+          .status(400)
+          .send(
+            "Please upload PDF or paste notes"
+          );
 
       }
 
@@ -165,7 +165,7 @@ if (req.file) {
       if (notes.length > 15000) {
 
         notes =
-        notes.substring(0, 15000);
+          notes.substring(0, 15000);
 
         console.log(
           "INPUT TRIMMED"
@@ -215,6 +215,40 @@ ${notes}
 
       }
 
+      else if (mode === "flashcards") {
+
+    prompt = `
+Convert these notes into modern quick revision cards.
+
+Rules:
+- Keep each card concise
+- Add a short title
+- Add 2-3 bullet points
+- Separate every card using:
+
+===CARD===
+
+Example:
+
+===CARD===
+Black Hole
+• Extremely dense object
+• Gravity bends spacetime
+• Light cannot escape
+
+===CARD===
+Wormhole
+• Hypothetical spacetime tunnel
+• Connects distant regions
+• Based on Einstein equations
+
+Notes:
+
+${notes}
+`;
+
+}
+
       // DEFAULT
 
       else {
@@ -222,8 +256,8 @@ ${notes}
         prompt = `
 Summarize these notes:
 
-${notes}
-`;
+${ notes }
+        `;
 
       }
 
@@ -236,23 +270,23 @@ ${notes}
       // ======================
 
       const completion =
-      await client.chat.completions.create({
+        await client.chat.completions.create({
 
-        model:
-        "llama-3.1-8b-instant",
+          model:
+            "llama-3.1-8b-instant",
 
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
+          messages: [
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
 
-        temperature: 0.5,
+          temperature: 0.5,
 
-        max_tokens: 1200,
+          max_tokens: 1200,
 
-      });
+        });
 
       console.log(
         "AI RESPONSE RECEIVED"
@@ -263,10 +297,10 @@ ${notes}
       // ======================
 
       const reply =
-      completion
-      ?.choices?.[0]
-      ?.message
-      ?.content || "No response generated";
+        completion
+          ?.choices?.[0]
+          ?.message
+          ?.content || "No response generated";
 
       console.log(
         "SENDING RESPONSE TO FRONTEND"
@@ -277,8 +311,8 @@ ${notes}
       // ======================
 
       return res
-      .status(200)
-      .send(reply);
+        .status(200)
+        .send(reply);
 
     }
 
@@ -291,10 +325,10 @@ ${notes}
       console.log(error);
 
       return res
-      .status(500)
-      .send(
-        "Something went wrong while processing request"
-      );
+        .status(500)
+        .send(
+          "Something went wrong while processing request"
+        );
 
     }
 
@@ -310,7 +344,7 @@ const PORT = 3000;
 app.listen(PORT, () => {
 
   console.log(
-    `Server running on port ${PORT}`
+    `Server running on port ${ PORT } `
   );
 
 });
