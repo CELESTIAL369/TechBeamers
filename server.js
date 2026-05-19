@@ -29,10 +29,6 @@ app.post(
   upload.single("pdf"),
   async (req, res) => {
 
-    console.log("BODY:", req.body);
-
-    console.log("FILE:", req.file);
-
     try {
 
       let notes = req.body.notes || "";
@@ -61,20 +57,19 @@ app.post(
 
       }
 
-      // Empty input check
+      // Empty input validation
 
       if (!notes || notes.trim() === "") {
 
-        return res.status(400).json({
-          error:
-          "Please provide notes or upload a PDF",
-        });
+        return res.send(
+          "Please provide notes or upload a PDF"
+        );
 
       }
 
       let prompt = "";
 
-      // Summary Agent
+      // SUMMARY AGENT
 
       if (mode === "summary") {
 
@@ -86,7 +81,7 @@ app.post(
 
       }
 
-      // Quiz Agent
+      // QUIZ AGENT
 
       else if (mode === "quiz") {
 
@@ -98,7 +93,7 @@ app.post(
 
       }
 
-      // Revision Agent
+      // REVISION AGENT
 
       else if (mode === "revision") {
 
@@ -110,7 +105,7 @@ app.post(
 
       }
 
-      // Default Agent
+      // DEFAULT
 
       else {
 
@@ -143,9 +138,9 @@ app.post(
       const reply =
       completion.choices[0].message.content;
 
-      res.json({
-        reply: reply,
-      });
+      // SEND CLEAN TEXT RESPONSE
+
+      res.send(reply);
 
     }
 
@@ -153,9 +148,9 @@ app.post(
 
       console.log("ERROR:", error);
 
-      res.status(500).json({
-        error: "Something went wrong",
-      });
+      res.send(
+        "Something went wrong while processing request"
+      );
 
     }
 
