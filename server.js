@@ -4,7 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const OpenAI = require("openai");
 const multer = require("multer");
-const pdfParse = require("pdf-parse");
+const pdfParse = require("pdf-parse/lib/pdf-parse");
 const fs = require("fs");
 
 const app = express();
@@ -29,6 +29,10 @@ app.post(
   upload.single("pdf"),
   async (req, res) => {
 
+    console.log("BODY:", req.body);
+
+    console.log("FILE:", req.file);
+
     try {
 
       let notes = req.body.notes || "";
@@ -39,13 +43,19 @@ app.post(
 
       if (req.file) {
 
-        const pdfBuffer = fs.readFileSync(req.file.path);
+        console.log("PDF RECEIVED");
 
-        const pdfData = await pdfParse(pdfBuffer);
+        const pdfBuffer =
+        fs.readFileSync(req.file.path);
+
+        const pdfData =
+        await pdfParse(pdfBuffer);
 
         notes = pdfData.text;
 
-        // Delete uploaded file after extraction
+        console.log("PDF TEXT EXTRACTED");
+
+        // delete uploaded file
 
         fs.unlinkSync(req.file.path);
 
@@ -56,7 +66,8 @@ app.post(
       if (!notes || notes.trim() === "") {
 
         return res.status(400).json({
-          error: "Please provide notes or upload a PDF",
+          error:
+          "Please provide notes or upload a PDF",
         });
 
       }
@@ -68,7 +79,7 @@ app.post(
       if (mode === "summary") {
 
         prompt = `
-        Summarize these notes clearly and professionally:
+        Summarize these notes clearly:
 
         ${notes}
         `;
@@ -111,7 +122,7 @@ app.post(
 
       }
 
-      // AI Request
+      console.log("SENDING TO AI");
 
       const completion =
       await client.chat.completions.create({
@@ -127,6 +138,8 @@ app.post(
 
       });
 
+      console.log("AI RESPONSE RECEIVED");
+
       const reply =
       completion.choices[0].message.content;
 
@@ -138,7 +151,7 @@ app.post(
 
     catch (error) {
 
-      console.log(error);
+      console.log("ERROR:", error);
 
       res.status(500).json({
         error: "Something went wrong",
