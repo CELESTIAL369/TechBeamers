@@ -427,6 +427,12 @@ Save notes as downloadable PDF.
 
 <script>
 
+const pdfInput =
+document.getElementById("pdfInput");
+
+const fileName =
+document.getElementById("fileName");
+
 const generateBtn =
 document.getElementById("generateBtn");
 
@@ -442,7 +448,7 @@ document.getElementById("downloadBtn");
 const mode =
 document.getElementById("mode");
 
-// CREATE NOTES INPUT DYNAMICALLY
+// CREATE NOTES TEXTAREA
 
 const notesBox =
 document.createElement("textarea");
@@ -455,7 +461,8 @@ notesBox.rows = 8;
 notesBox.placeholder =
 "Paste your study notes here...";
 
-notesBox.id = "notesInput";
+notesBox.id =
+"notesInput";
 
 document.querySelector(".upload-card")
 .insertBefore(
@@ -463,30 +470,77 @@ notesBox,
 document.getElementById("mode")
 );
 
+// SHOW FILE NAME
+
+pdfInput.addEventListener("change", function(){
+
+    const file = this.files[0];
+
+    if(file){
+
+        fileName.innerText =
+        "Selected: " + file.name;
+
+    }
+
+});
+
 // GENERATE NOTES
 
 generateBtn.addEventListener("click", async () => {
 
+    const file =
+    pdfInput.files[0];
+
     const notes =
     document.getElementById("notesInput").value;
 
-    if(!notes){
+    // VALIDATION
 
-        alert("Please paste notes");
+    if(!file && !notes){
+
+        alert(
+        "Please upload PDF or paste notes"
+        );
 
         return;
 
     }
 
+    // FORM DATA
+
+    const formData =
+    new FormData();
+
+    if(file){
+
+        formData.append("pdf", file);
+
+    }
+
+    formData.append(
+    "notes",
+    notes
+    );
+
+    formData.append(
+    "mode",
+    mode.value
+    );
+
     // UI RESET
 
-    loading.style.display = "block";
+    loading.style.display =
+    "block";
 
-    output.style.display = "none";
+    output.style.display =
+    "none";
 
-    downloadBtn.style.display = "none";
+    downloadBtn.style.display =
+    "none";
 
-    generateBtn.disabled = true;
+    generateBtn.disabled =
+    true;
 
     generateBtn.innerText =
     "Generating...";
@@ -497,53 +551,31 @@ generateBtn.addEventListener("click", async () => {
         await fetch(
         "http://localhost:3000/process",
         {
-
             method: "POST",
-
-            headers: {
-                "Content-Type":
-                "application/json",
-            },
-
-            body: JSON.stringify({
-
-                notes: notes,
-
-                mode: mode.value,
-
-            }),
-
+            body: formData,
         });
 
-        const data =
-        await response.json();
+        // RAW TEXT RESPONSE
 
-        console.log(data);
+        const text =
+        await response.text();
 
-        loading.style.display = "none";
+        console.log(text);
 
-        output.style.display = "block";
+        loading.style.display =
+        "none";
 
-        if(data.reply){
+        output.style.display =
+        "block";
 
-            output.innerText =
-            data.reply;
+        output.innerText =
+        text;
 
-            window.generatedNotes =
-            data.reply;
+        window.generatedNotes =
+        text;
 
-            downloadBtn.style.display =
-            "inline-block";
-
-        }
-
-        else{
-
-            output.innerText =
-            data.error ||
-            "No response generated";
-
-        }
+        downloadBtn.style.display =
+        "inline-block";
 
     }
 
@@ -551,16 +583,21 @@ generateBtn.addEventListener("click", async () => {
 
         console.log(error);
 
-        loading.style.display = "none";
+        loading.style.display =
+        "none";
 
-        output.style.display = "block";
+        output.style.display =
+        "block";
 
         output.innerText =
-        "Server connection failed";
+        "Failed to generate response";
 
     }
 
-    generateBtn.disabled = false;
+    // RESET BUTTON
+
+    generateBtn.disabled =
+    false;
 
     generateBtn.innerText =
     "Generate Notes";
@@ -571,19 +608,30 @@ generateBtn.addEventListener("click", async () => {
 
 downloadBtn.addEventListener("click", () => {
 
-    const { jsPDF } = window.jspdf;
+    const { jsPDF } =
+    window.jspdf;
 
-    const doc = new jsPDF();
+    const doc =
+    new jsPDF();
 
     const text =
     window.generatedNotes || "";
 
     const splitText =
-    doc.splitTextToSize(text, 180);
+    doc.splitTextToSize(
+    text,
+    180
+    );
 
-    doc.text(splitText, 10, 10);
+    doc.text(
+    splitText,
+    10,
+    10
+    );
 
-    doc.save("StudyAI-Notes.pdf");
+    doc.save(
+    "StudyAI-Notes.pdf"
+    );
 
 });
 
