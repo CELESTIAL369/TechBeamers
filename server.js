@@ -10,7 +10,10 @@ const fs = require("fs");
 const app = express();
 
 app.use(cors());
+
 app.use(express.json());
+
+app.use(express.urlencoded({ extended: true }));
 
 const client = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
@@ -21,81 +24,133 @@ const upload = multer({
   dest: "uploads/",
 });
 
-app.post("/process", upload.single("pdf"), async (req, res) => {
+app.post(
+  "/process",
+  upload.single("pdf"),
+  async (req, res) => {
 
-  let notes = req.body.notes || "";
-  const mode = req.body.mode;
-  if (req.file) {
+    try {
 
-  const pdfBuffer = fs.readFileSync(req.file.path);
+      let notes = req.body.notes || "";
 
-  const pdfData = await pdfParse(pdfBuffer);
+      const mode = req.body.mode;
 
-  notes = pdfData.text;
-  fs.unlinkSync(req.file.path);
+      // PDF Processing
 
-}
-if (!notes) {
-  return res.status(400).json({
-    error: "Please provide notes or upload a PDF",
-  });
-}
+      if (req.file) {
 
-  let prompt = "";
+        const pdfBuffer = fs.readFileSync(req.file.path);
 
-  // Summary Agent
-  if (mode === "summary") {
-    prompt = `Summarize these notes clearly:\n\n${notes}`;
+        const pdfData = await pdfParse(pdfBuffer);
+
+        notes = pdfData.text;
+
+        // Delete uploaded file after extraction
+
+        fs.unlinkSync(req.file.path);
+
+      }
+
+      // Empty input check
+
+      if (!notes || notes.trim() === "") {
+
+        return res.status(400).json({
+          error: "Please provide notes or upload a PDF",
+        });
+
+      }
+
+      let prompt = "";
+
+      // Summary Agent
+
+      if (mode === "summary") {
+
+        prompt = `
+        Summarize these notes clearly and professionally:
+
+        ${notes}
+        `;
+
+      }
+
+      // Quiz Agent
+
+      else if (mode === "quiz") {
+
+        prompt = `
+        Generate 5 quiz questions from these notes:
+
+        ${notes}
+        `;
+
+      }
+
+      // Revision Agent
+
+      else if (mode === "revision") {
+
+        prompt = `
+        Convert these notes into quick revision points:
+
+        ${notes}
+        `;
+
+      }
+
+      // Default Agent
+
+      else {
+
+        prompt = `
+        Summarize these notes:
+
+        ${notes}
+        `;
+
+      }
+
+      // AI Request
+
+      const completion =
+      await client.chat.completions.create({
+
+        model: "llama-3.1-8b-instant",
+
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+
+      });
+
+      const reply =
+      completion.choices[0].message.content;
+
+      res.json({
+        reply: reply,
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        error: "Something went wrong",
+      });
+
+    }
+
   }
-
-  // Quiz Agent
-  else if (mode === "quiz") {
-    prompt = `Generate 5 quiz questions from these notes:\n\n${notes}`;
-  }
-
-  // Revision Agent
-  else if (mode === "revision") {
-    prompt = `Convert these notes into quick revision points:\n\n${notes}`;
-  }
-
-  // Default Agent
-  else {
-    prompt = `Summarize these notes:\n\n${notes}`;
-  }
-
-  try {
-
-    const completion = await client.chat.completions.create({
-
-      model: "llama-3.1-8b-instant",
-
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-
-    });
-
-    const reply = completion.choices[0].message.content;
-
-    res.json({
-      reply: reply,
-    });
-
-  } catch (error) {
-
-    console.log(error);
-
-    res.status(500).json({
-      error: "Something went wrong",
-    });
-
-  }
-
-});
+);
 
 app.listen(3000, () => {
+
   console.log("Server running on port 3000");
+
 });
