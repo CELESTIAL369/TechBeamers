@@ -3,6 +3,9 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const OpenAI = require("openai");
+const multer = require("multer");
+const pdfParse = require("pdf-parse");
+const fs = require("fs");
 
 const app = express();
 
@@ -14,10 +17,29 @@ const client = new OpenAI({
   baseURL: "https://api.groq.com/openai/v1",
 });
 
-app.post("/process", async (req, res) => {
+const upload = multer({
+  dest: "uploads/",
+});
 
-  const notes = req.body.notes;
+app.post("/process", upload.single("pdf"), async (req, res) => {
+
+  let notes = req.body.notes || "";
   const mode = req.body.mode;
+  if (req.file) {
+
+  const pdfBuffer = fs.readFileSync(req.file.path);
+
+  const pdfData = await pdfParse(pdfBuffer);
+
+  notes = pdfData.text;
+  fs.unlinkSync(req.file.path);
+
+}
+if (!notes) {
+  return res.status(400).json({
+    error: "Please provide notes or upload a PDF",
+  });
+}
 
   let prompt = "";
 
