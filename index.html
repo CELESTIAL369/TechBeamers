@@ -904,6 +904,14 @@
                         "output"
                     );
 
+                // TEMPORARILY EXPAND FULL CONTENT
+
+                responseElement.style.maxHeight =
+                    "none";
+
+                responseElement.style.overflow =
+                    "visible";
+
                 const canvas =
                     await html2canvas(
                         responseElement,
@@ -980,12 +988,19 @@
 
                 }
 
+                // RESTORE SCROLLABLE UI
+
+                responseElement.style.maxHeight =
+                    "500px";
+
+                responseElement.style.overflowY =
+                    "auto";
+
                 pdf.save(
                     "StudyAI-Handwritten-Notes.pdf"
                 );
 
             });
-
     </script>
 
     <!-- Bootstrap JS -->
