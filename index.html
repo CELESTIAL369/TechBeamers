@@ -165,17 +165,23 @@
         /* OUTPUT */
 
         .output-box {
+
             background: rgba(255, 255, 255, 0.08);
+
             border-radius: 20px;
+
             padding: 25px;
+
             margin-top: 30px;
+
             max-height: 500px;
+
             overflow-y: auto;
+
             white-space: pre-wrap;
+
             text-align: left;
-            height: auto !important;
-            max-height: none !important;
-            overflow: visible !important;
+
         }
 
         .flashcard {
@@ -241,7 +247,7 @@
         <div class="container-fluid">
 
             <a class="navbar-brand" href="#">
-                StudyAI
+                EduNote
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
@@ -250,25 +256,7 @@
 
             </button>
 
-            <div class="collapse navbar-collapse" id="menu">
 
-                <ul class="navbar-nav ms-auto">
-
-                    <li class="nav-item mx-2">
-                        <a class="nav-link" href="#">Home</a>
-                    </li>
-
-                    <li class="nav-item mx-2">
-                        <a class="nav-link" href="#">Features</a>
-                    </li>
-
-                    <li class="nav-item mx-2">
-                        <a class="nav-link" href="#">Future Scope</a>
-                    </li>
-
-                </ul>
-
-            </div>
 
         </div>
 
@@ -484,7 +472,7 @@
                         <p>Voice-based note interaction and learning.</p>
                     </div>
 
-                   
+
 
                     <div class="col-md-3">
                         <h3>🌍 Multi-language</h3>
@@ -508,7 +496,7 @@
 
     <footer>
 
-        © 2026 StudyAI | Built for Students 🚀
+        © 2026 EduNote | Built for Students 🚀
 
     </footer>
 
@@ -556,12 +544,24 @@
                 const file =
                     this.files[0];
 
-                if (file) {
+                if (!file) return;
 
-                    fileName.innerText =
-                        "Selected: " + file.name;
+                // PREVENT BOTH INPUTS
+
+                if (imageInput.files.length > 0) {
+
+                    alert(
+                        "Please use either PDF upload or OCR image upload, not both."
+                    );
+
+                    pdfInput.value = "";
+
+                    return;
 
                 }
+
+                fileName.innerText =
+                    "Selected PDF: " + file.name;
 
             });
 
@@ -573,6 +573,20 @@
                     this.files[0];
 
                 if (!file) return;
+
+                // PREVENT BOTH INPUTS
+
+                if (pdfInput.files.length > 0) {
+
+                    alert(
+                        "Please use either PDF upload or OCR image upload, not both."
+                    );
+
+                    imageInput.value = "";
+
+                    return;
+
+                }
 
                 loading.style.display =
                     "block";
@@ -593,6 +607,9 @@
 
                     loading.style.display =
                         "none";
+
+                    fileName.innerText =
+                        "OCR Image Processed: " + file.name;
 
                     alert(
                         "Handwritten notes extracted successfully!"
