@@ -4,7 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const OpenAI = require("openai");
 const multer = require("multer");
-const pdfParse = require("pdf-parse/lib/pdf-parse");
+const pdfParse = require("pdf-parse");
 const fs = require("fs");
 
 const app = express();
