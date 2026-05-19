@@ -448,29 +448,7 @@ document.getElementById("downloadBtn");
 const mode =
 document.getElementById("mode");
 
-// CREATE NOTES TEXTAREA
-
-const notesBox =
-document.createElement("textarea");
-
-notesBox.className =
-"form-control mt-4";
-
-notesBox.rows = 8;
-
-notesBox.placeholder =
-"Paste your study notes here...";
-
-notesBox.id =
-"notesInput";
-
-document.querySelector(".upload-card")
-.insertBefore(
-notesBox,
-document.getElementById("mode")
-);
-
-// SHOW FILE NAME
+// FILE NAME DISPLAY
 
 pdfInput.addEventListener("change", function(){
 
@@ -492,55 +470,30 @@ generateBtn.addEventListener("click", async () => {
     const file =
     pdfInput.files[0];
 
-    const notes =
-    document.getElementById("notesInput").value;
+    if(!file){
 
-    // VALIDATION
-
-    if(!file && !notes){
-
-        alert(
-        "Please upload PDF or paste notes"
-        );
+        alert("Please upload a PDF");
 
         return;
 
     }
 
-    // FORM DATA
-
     const formData =
     new FormData();
 
-    if(file){
+    formData.append("pdf", file);
 
-        formData.append("pdf", file);
+    formData.append("mode", mode.value);
 
-    }
+    // UI
 
-    formData.append(
-    "notes",
-    notes
-    );
+    loading.style.display = "block";
 
-    formData.append(
-    "mode",
-    mode.value
-    );
+    output.style.display = "none";
 
-    // UI RESET
+    downloadBtn.style.display = "none";
 
-    loading.style.display =
-    "block";
-
-    output.style.display =
-    "none";
-
-    downloadBtn.style.display =
-    "none";
-
-    generateBtn.disabled =
-    true;
+    generateBtn.disabled = true;
 
     generateBtn.innerText =
     "Generating...";
@@ -555,27 +508,34 @@ generateBtn.addEventListener("click", async () => {
             body: formData,
         });
 
-        // RAW TEXT RESPONSE
+        const data =
+        await response.json();
 
-        const text =
-        await response.text();
+        console.log(data);
 
-        console.log(text);
+        loading.style.display = "none";
 
-        loading.style.display =
-        "none";
+        output.style.display = "block";
 
-        output.style.display =
-        "block";
+        if(data.reply){
 
-        output.innerText =
-        text;
+            output.innerHTML =
+            data.reply;
 
-        window.generatedNotes =
-        text;
+            window.generatedNotes =
+            data.reply;
 
-        downloadBtn.style.display =
-        "inline-block";
+            downloadBtn.style.display =
+            "inline-block";
+
+        }
+
+        else{
+
+            output.innerHTML =
+            data.error || "No response received";
+
+        }
 
     }
 
@@ -583,21 +543,16 @@ generateBtn.addEventListener("click", async () => {
 
         console.log(error);
 
-        loading.style.display =
-        "none";
+        loading.style.display = "none";
 
-        output.style.display =
-        "block";
+        output.style.display = "block";
 
-        output.innerText =
-        "Failed to generate response";
+        output.innerHTML =
+        "Server connection failed";
 
     }
 
-    // RESET BUTTON
-
-    generateBtn.disabled =
-    false;
+    generateBtn.disabled = false;
 
     generateBtn.innerText =
     "Generate Notes";
@@ -608,30 +563,19 @@ generateBtn.addEventListener("click", async () => {
 
 downloadBtn.addEventListener("click", () => {
 
-    const { jsPDF } =
-    window.jspdf;
+    const { jsPDF } = window.jspdf;
 
-    const doc =
-    new jsPDF();
+    const doc = new jsPDF();
 
     const text =
     window.generatedNotes || "";
 
     const splitText =
-    doc.splitTextToSize(
-    text,
-    180
-    );
+    doc.splitTextToSize(text, 180);
 
-    doc.text(
-    splitText,
-    10,
-    10
-    );
+    doc.text(splitText, 10, 10);
 
-    doc.save(
-    "StudyAI-Notes.pdf"
-    );
+    doc.save("StudyAI-Notes.pdf");
 
 });
 
