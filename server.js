@@ -9,28 +9,50 @@ const fs = require("fs");
 
 const app = express();
 
+// ======================
 // MIDDLEWARE
+// ======================
 
 app.use(cors());
 
 app.use(express.json());
 
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({
+  extended: true,
+}));
 
+// ======================
 // GROQ CLIENT
+// ======================
 
 const client = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
   baseURL: "https://api.groq.com/openai/v1",
 });
 
-// MULTER
+// ======================
+// MULTER SETUP
+// ======================
 
 const upload = multer({
   dest: "uploads/",
 });
 
-// MAIN ROUTE
+// ======================
+// HEALTH CHECK ROUTE
+// ======================
+
+app.get("/", (req, res) => {
+
+  res.status(200).send(
+    "StudyAI Backend Running"
+  );
+
+});
+
+// ======================
+// MAIN PROCESS ROUTE
+// ======================
 
 app.post(
   "/process",
@@ -39,74 +61,154 @@ app.post(
 
     try {
 
-      let notes = req.body.notes || "";
+      console.log("========== NEW REQUEST ==========");
 
-      const mode = req.body.mode;
+      let notes =
+      req.body.notes || "";
 
-      // PDF PROCESSING
+      const mode =
+      req.body.mode || "summary";
 
-      if (req.file) {
+      // ======================
+// PDF PROCESSING
+// ======================
+
+if (req.file) {
+
+    try {
 
         console.log("PDF RECEIVED");
 
+        // READ PDF
+
         const pdfBuffer =
-        fs.readFileSync(req.file.path);
+        fs.readFileSync(
+            req.file.path
+        );
+
+        // EXTRACT TEXT
 
         const pdfData =
-        await pdfParse(pdfBuffer);
+        await pdfParse(
+            pdfBuffer
+        );
 
-        notes = pdfData.text;
+        notes =
+        pdfData.text;
 
-        console.log("PDF TEXT EXTRACTED");
+        console.log(
+        "PDF TEXT EXTRACTED"
+        );
+
+    }
+
+    catch (pdfError) {
+
+        console.log(
+        "PDF PARSE ERROR:",
+        pdfError.message
+        );
+
+        return res
+        .status(400)
+        .send(
+        "Invalid or unsupported PDF file"
+        );
+
+    }
+
+    finally {
 
         // DELETE TEMP FILE
 
-        fs.unlinkSync(req.file.path);
+        if (
+            fs.existsSync(req.file.path)
+        ) {
 
-      }
+            fs.unlinkSync(
+                req.file.path
+            );
 
+            console.log(
+            "TEMP FILE DELETED"
+            );
+
+        }
+
+    }
+
+}
+
+      // ======================
       // VALIDATION
+      // ======================
 
-      if (!notes || notes.trim() === "") {
+      if (
+        !notes ||
+        notes.trim() === ""
+      ) {
 
-        return res.send(
+        console.log(
+          "NO INPUT PROVIDED"
+        );
+
+        return res
+        .status(400)
+        .send(
           "Please upload PDF or paste notes"
         );
 
       }
 
+      // LIMIT HUGE INPUT
+
+      if (notes.length > 15000) {
+
+        notes =
+        notes.substring(0, 15000);
+
+        console.log(
+          "INPUT TRIMMED"
+        );
+
+      }
+
+      // ======================
+      // PROMPT BUILDING
+      // ======================
+
       let prompt = "";
 
-      // SUMMARY AGENT
+      // SUMMARY
 
       if (mode === "summary") {
 
         prompt = `
-Summarize these notes clearly:
+Summarize these notes clearly and professionally:
 
 ${notes}
 `;
 
       }
 
-      // QUIZ AGENT
+      // QUIZ
 
       else if (mode === "quiz") {
 
         prompt = `
-Generate 5 quiz questions from these notes:
+Generate 5 important quiz questions with answers from these notes:
 
 ${notes}
 `;
 
       }
 
-      // REVISION AGENT
+      // REVISION
 
       else if (mode === "revision") {
 
         prompt = `
-Convert these notes into quick revision points:
+Convert these notes into short and clean revision points:
 
 ${notes}
 `;
@@ -125,14 +227,19 @@ ${notes}
 
       }
 
-      console.log("SENDING TO AI");
+      console.log(
+        "SENDING TO AI"
+      );
 
+      // ======================
       // AI REQUEST
+      // ======================
 
       const completion =
       await client.chat.completions.create({
 
-        model: "llama-3.1-8b-instant",
+        model:
+        "llama-3.1-8b-instant",
 
         messages: [
           {
@@ -141,24 +248,51 @@ ${notes}
           },
         ],
 
+        temperature: 0.5,
+
+        max_tokens: 1200,
+
       });
 
-      console.log("AI RESPONSE RECEIVED");
+      console.log(
+        "AI RESPONSE RECEIVED"
+      );
+
+      // ======================
+      // CLEAN RESPONSE
+      // ======================
 
       const reply =
-      completion.choices[0].message.content;
+      completion
+      ?.choices?.[0]
+      ?.message
+      ?.content || "No response generated";
 
-      // SEND CLEAN TEXT
+      console.log(
+        "SENDING RESPONSE TO FRONTEND"
+      );
 
-      res.send(reply);
+      // ======================
+      // SEND RESPONSE
+      // ======================
+
+      return res
+      .status(200)
+      .send(reply);
 
     }
 
     catch (error) {
 
-      console.log("ERROR:", error);
+      console.log(
+        "========== ERROR =========="
+      );
 
-      res.send(
+      console.log(error);
+
+      return res
+      .status(500)
+      .send(
         "Something went wrong while processing request"
       );
 
@@ -167,12 +301,16 @@ ${notes}
   }
 );
 
-// SERVER
+// ======================
+// SERVER START
+// ======================
 
-app.listen(3000, () => {
+const PORT = 3000;
+
+app.listen(PORT, () => {
 
   console.log(
-    "Server running on port 3000"
+    `Server running on port ${PORT}`
   );
 
 });

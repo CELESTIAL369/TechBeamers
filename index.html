@@ -3,698 +3,908 @@
 
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>StudyAI</title>
+    <title>StudyAI</title>
 
-<!-- Bootstrap -->
-<link href="https://fonts.googleapis.com/css2?family=Kalam&display=swap" rel="stylesheet">
-<link
-href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-rel="stylesheet"
-/>
+    <!-- Bootstrap -->
+    <link href="https://fonts.googleapis.com/css2?family=Kalam&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-<!-- jsPDF -->
+    <!-- jsPDF -->
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<style>
+    <!-- pdf.js -->
 
-#responseText{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 
-    font-family: 'Kalam', cursive;
+    <!-- html2canvas -->
 
-    font-size: 20px;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
 
-    line-height: 2;
+    <style>
+        #responseText {
 
-    color: #1e3a8a;
+            font-family: 'Kalam', cursive;
 
-    background: #fffef2;
+            font-size: 20px;
 
-    padding: 20px;
+            line-height: 2;
 
-    border-radius: 10px;
+            color: #1e3a8a;
 
-}
+            background: #fffef2;
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family: Arial, sans-serif;
-}
+            padding: 20px;
 
-body{
-    background: linear-gradient(to right,#0f172a,#1e293b);
-    color:white;
-}
+            border-radius: 10px;
 
-/* NAVBAR */
+        }
 
-.navbar{
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
 
-.navbar-brand{
-    font-size:28px;
-    font-weight:bold;
-    color:#38bdf8 !important;
-}
+        body {
+            background: linear-gradient(to right, #0f172a, #1e293b);
+            color: white;
+        }
 
-/* HERO SECTION */
+        /* NAVBAR */
 
-.hero{
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:60px 20px;
-}
+        .navbar {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
 
-.hero-text h1{
-    font-size:60px;
-    font-weight:bold;
-}
+        .navbar-brand {
+            font-size: 28px;
+            font-weight: bold;
+            color: #38bdf8 !important;
+        }
 
-.hero-text span{
-    color:#38bdf8;
-}
+        /* HERO SECTION */
 
-.hero-text p{
-    margin-top:20px;
-    font-size:20px;
-    color:#cbd5e1;
-}
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+        }
 
-/* UPLOAD CARD */
+        .hero-text h1 {
+            font-size: 60px;
+            font-weight: bold;
+        }
 
-.upload-card{
-    background: rgba(255,255,255,0.08);
-    border-radius:20px;
-    padding:30px;
-    text-align:center;
-    box-shadow:0 8px 20px rgba(0,0,0,0.3);
-}
+        .hero-text span {
+            color: #38bdf8;
+        }
 
-.upload-box{
-    border:2px dashed #38bdf8;
-    padding:40px;
-    border-radius:15px;
-    transition:0.3s;
-}
+        .hero-text p {
+            margin-top: 20px;
+            font-size: 20px;
+            color: #cbd5e1;
+        }
 
-.upload-box:hover{
-    background: rgba(255,255,255,0.05);
-}
+        /* UPLOAD CARD */
 
-/* BUTTON */
+        .upload-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
 
-.btn-custom{
-    background:#38bdf8;
-    border:none;
-    color:white;
-    padding:12px 25px;
-    border-radius:10px;
-    font-size:18px;
-    transition:0.3s;
-}
+        .upload-box {
+            border: 2px dashed #38bdf8;
+            padding: 40px;
+            border-radius: 15px;
+            transition: 0.3s;
+        }
 
-.btn-custom:hover{
-    background:#0ea5e9;
-}
+        .upload-box:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
 
-/* FEATURES */
+        /* BUTTON */
 
-.features{
-    padding:80px 20px;
-}
+        .btn-custom {
+            background: #38bdf8;
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 18px;
+            transition: 0.3s;
+        }
 
-.feature-card{
-    background: rgba(255,255,255,0.08);
-    border-radius:20px;
-    padding:30px;
-    transition:0.3s;
-    height:100%;
-}
+        .btn-custom:hover {
+            background: #0ea5e9;
+        }
 
-.feature-card:hover{
-    transform:translateY(-10px);
-}
+        /* FEATURES */
 
-/* FUTURE SCOPE */
+        .features {
+            padding: 80px 20px;
+        }
 
-.future-scope{
-    padding:80px 20px;
-}
+        .feature-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 30px;
+            transition: 0.3s;
+            height: 100%;
+        }
 
-.scope-card{
-    background: rgba(255,255,255,0.08);
-    border-radius:20px;
-    padding:30px;
-    text-align:center;
-}
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
 
-/* OUTPUT */
+        /* FUTURE SCOPE */
 
-.output-box{
-    background: rgba(255,255,255,0.08);
-    border-radius:20px;
-    padding:25px;
-    margin-top:30px;
-    max-height:500px;
-    overflow-y:auto;
-    white-space:pre-wrap;
-    text-align:left;
-}
+        .future-scope {
+            padding: 80px 20px;
+        }
 
-/* FOOTER */
+        .scope-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
 
-footer{
-    text-align:center;
-    padding:30px;
-    color:#94a3b8;
-}
+        /* OUTPUT */
 
-/* RESPONSIVE */
+        .output-box {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 30px;
+            max-height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            text-align: left;
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+        }
 
-@media(max-width:768px){
+        /* FOOTER */
 
-.hero{
-    text-align:center;
-}
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #94a3b8;
+        }
 
-.hero-text h1{
-    font-size:40px;
-}
+        /* RESPONSIVE */
 
-}
+        @media(max-width:768px) {
 
-</style>
+            .hero {
+                text-align: center;
+            }
+
+            .hero-text h1 {
+                font-size: 40px;
+            }
+
+        }
+    </style>
 
 </head>
 
 <body>
 
-<!-- NAVBAR -->
+    <!-- NAVBAR -->
 
-<nav class="navbar navbar-expand-lg navbar-dark px-4">
+    <nav class="navbar navbar-expand-lg navbar-dark px-4">
 
-<div class="container-fluid">
+        <div class="container-fluid">
 
-<a class="navbar-brand" href="#">
-StudyAI
-</a>
+            <a class="navbar-brand" href="#">
+                StudyAI
+            </a>
 
-<button
-class="navbar-toggler"
-type="button"
-data-bs-toggle="collapse"
-data-bs-target="#menu"
->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
 
-<span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
 
-</button>
+            </button>
 
-<div class="collapse navbar-collapse" id="menu">
+            <div class="collapse navbar-collapse" id="menu">
 
-<ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto">
 
-<li class="nav-item mx-2">
-<a class="nav-link" href="#">Home</a>
-</li>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
 
-<li class="nav-item mx-2">
-<a class="nav-link" href="#">Features</a>
-</li>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="#">Features</a>
+                    </li>
 
-<li class="nav-item mx-2">
-<a class="nav-link" href="#">Future Scope</a>
-</li>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="#">Future Scope</a>
+                    </li>
 
-</ul>
+                </ul>
 
-</div>
+            </div>
 
-</div>
+        </div>
 
-</nav>
+    </nav>
 
-<!-- HERO SECTION -->
+    <!-- HERO SECTION -->
 
-<section class="hero">
+    <section class="hero">
 
-<div class="container">
+        <div class="container">
 
-<div class="row align-items-center">
+            <div class="row align-items-center">
 
-<!-- LEFT -->
+                <!-- LEFT -->
 
-<div class="col-lg-6 hero-text">
+                <div class="col-lg-6 hero-text">
 
-<h1>
-Turn PDFs Into
-<span>Smart Revision Notes</span>
-</h1>
+                    <h1>
+                        Turn PDFs Into
+                        <span>Smart Revision Notes</span>
+                    </h1>
 
-<p>
-Upload your study PDFs and instantly get
-AI-generated summaries, revision points,
-and quizzes.
-</p>
+                    <p>
+                        Upload your study PDFs and instantly get
+                        AI-generated summaries, revision points,
+                        and quizzes.
+                    </p>
 
-</div>
+                </div>
 
-<!-- RIGHT -->
+                <!-- RIGHT -->
 
-<div class="col-lg-6 mt-5 mt-lg-0">
+                <div class="col-lg-6 mt-5 mt-lg-0">
 
-<div class="upload-card">
+                    <div class="upload-card">
 
-<h2 class="mb-4">
-Upload PDF or Notes
-</h2>
+                        <h2 class="mb-4">
+                            Upload PDF or Notes
+                        </h2>
 
-<div class="upload-box">
+                        <div class="upload-box">
 
-<input
-type="file"
-id="pdfInput"
-accept=".pdf"
-class="form-control"
-/>
+                            <p class="text-info mb-2">
+                                Upload PDF
+                            </p>
 
-<p id="fileName" class="mt-3 text-info"></p>
+                            <input type="file" id="pdfInput" accept=".pdf" class="form-control" />
 
-</div>
+                            <p class="text-info mb-2 mt-3">
+                                Upload Handwritten Image (OCR)
+                            </p>
 
-<!-- NOTES -->
+                            <input type="file" id="imageInput" accept="image/*" class="form-control mt-3" />
 
-<textarea
-id="notesInput"
-class="form-control mt-4"
-rows="6"
-placeholder="Paste your notes here..."
-></textarea>
+                        </div>
 
-<!-- MODE -->
+                        <!-- NOTES -->
 
-<select
-id="mode"
-class="form-select mt-4"
->
+                        <textarea id="notesInput" class="form-control mt-4" rows="6"
+                            placeholder="Paste your notes here..."></textarea>
 
-<option value="summary">
-Summary
-</option>
+                        <!-- MODE -->
 
-<option value="revision">
-Revision Notes
-</option>
+                        <select id="mode" class="form-select mt-4">
 
-<option value="quiz">
-Quiz Questions
-</option>
+                            <option value="summary">
+                                Summary
+                            </option>
 
-</select>
+                            <option value="revision">
+                                Revision Notes
+                            </option>
 
-<!-- BUTTON -->
+                            <option value="quiz">
+                                Quiz Questions
+                            </option>
 
-<button
-id="generateBtn"
-class="btn-custom mt-4"
->
+                        </select>
 
-Generate Notes
+                        <!-- BUTTON -->
 
-</button>
+                        <button onclick="handleGenerate(event)" type="button" id="generateBtn" class="btn-custom mt-4">
+                            Generate Notes
+                        </button>
 
-<!-- LOADING -->
+                        <!-- LOADING -->
 
-<div
-id="loading"
-class="mt-4"
-style="display:none;"
->
+                        <div id="loading" class="mt-4" style="display:none;">
 
-<div
-class="spinner-border text-info"
-role="status"
-></div>
+                            <div class="spinner-border text-info" role="status"></div>
 
-<p class="mt-3">
-Generating AI response...
-</p>
+                            <p class="mt-3">
+                                Generating AI response...
+                            </p>
 
-</div>
+                        </div>
 
-<!-- OUTPUT -->
+                        <!-- OUTPUT -->
 
-<div
-id="output"
-class="output-box"
-style="display:none;"
->
+                        <div id="output" class="output-box" style="display:none;">
 
-</div>
+                            <p id="responseText"></p>
 
-<!-- DOWNLOAD -->
+                        </div>
 
-<button
-id="downloadBtn"
-class="btn btn-info mt-4"
-style="display:none;"
->
+                        <!-- DOWNLOAD -->
 
-Download PDF
+                        <button type="button" id="downloadBtn" class="btn btn-info mt-4" style="display:none;">
+                            Download PDF
+                        </button>
+                    </div>
 
-</button>
+                </div>
 
-</div>
+            </div>
 
-</div>
+        </div>
 
-</div>
+    </section>
 
-</div>
+    <!-- FEATURES -->
 
-</section>
+    <section class="features">
 
-<!-- FEATURES -->
+        <div class="container">
 
-<section class="features">
+            <h1 class="text-center mb-5">
+                Features
+            </h1>
 
-<div class="container">
+            <div class="row g-4">
 
-<h1 class="text-center mb-5">
-Features
-</h1>
+                <div class="col-md-4">
 
-<div class="row g-4">
+                    <div class="feature-card text-center">
 
-<div class="col-md-4">
+                        <h1>📄</h1>
 
-<div class="feature-card text-center">
+                        <h3 class="mt-3">
+                            PDF Upload
+                        </h3>
 
-<h1>📄</h1>
+                        <p class="mt-3">
+                            Upload study material easily.
+                        </p>
 
-<h3 class="mt-3">
-PDF Upload
-</h3>
+                    </div>
 
-<p class="mt-3">
-Upload study material easily.
-</p>
+                </div>
 
-</div>
+                <div class="col-md-4">
 
-</div>
+                    <div class="feature-card text-center">
 
-<div class="col-md-4">
+                        <h1>🧠</h1>
 
-<div class="feature-card text-center">
+                        <h3 class="mt-3">
+                            AI Notes
+                        </h3>
 
-<h1>🧠</h1>
+                        <p class="mt-3">
+                            Generate smart revision notes instantly.
+                        </p>
 
-<h3 class="mt-3">
-AI Notes
-</h3>
+                    </div>
 
-<p class="mt-3">
-Generate smart revision notes instantly.
-</p>
+                </div>
 
-</div>
+                <div class="col-md-4">
 
-</div>
+                    <div class="feature-card text-center">
 
-<div class="col-md-4">
+                        <h1>⬇</h1>
 
-<div class="feature-card text-center">
+                        <h3 class="mt-3">
+                            Download PDF
+                        </h3>
 
-<h1>⬇</h1>
+                        <p class="mt-3">
+                            Save notes as downloadable PDF.
+                        </p>
 
-<h3 class="mt-3">
-Download PDF
-</h3>
+                    </div>
 
-<p class="mt-3">
-Save notes as downloadable PDF.
-</p>
+                </div>
 
-</div>
+            </div>
 
-</div>
+        </div>
 
-</div>
+    </section>
 
-</div>
+    <!-- FUTURE SCOPE -->
 
-</section>
+    <section class="future-scope">
 
-<!-- FUTURE SCOPE -->
+        <div class="container">
 
-<section class="future-scope">
+            <h1 class="text-center mb-5">
+                Coming Soon 🚀
+            </h1>
 
-<div class="container">
+            <div class="scope-card">
 
-<h1 class="text-center mb-5">
-Coming Soon 🚀
-</h1>
+                <div class="row g-4">
 
-<div class="scope-card">
+                    <div class="col-md-3">
+                        <h3>🎤 Voice Assistant</h3>
+                        <p>Voice-based note interaction and learning.</p>
+                    </div>
 
-<div class="row g-4">
+                    <div class="col-md-3">
+                        <h3>📝 OCR Notes</h3>
+                        <p>Extract notes directly from handwritten images.</p>
+                    </div>
 
-<div class="col-md-3">
-<h3>🎤 Voice Assistant</h3>
-<p>Voice-based note interaction and learning.</p>
-</div>
+                    <div class="col-md-3">
+                        <h3>🌍 Multi-language</h3>
+                        <p>Generate notes in multiple languages.</p>
+                    </div>
 
-<div class="col-md-3">
-<h3>📝 OCR Notes</h3>
-<p>Extract notes directly from handwritten images.</p>
-</div>
+                    <div class="col-md-3">
+                        <h3>📊 Progress Tracking</h3>
+                        <p>Track learning performance and revision progress.</p>
+                    </div>
 
-<div class="col-md-3">
-<h3>🌍 Multi-language</h3>
-<p>Generate notes in multiple languages.</p>
-</div>
+                </div>
 
-<div class="col-md-3">
-<h3>📊 Progress Tracking</h3>
-<p>Track learning performance and revision progress.</p>
-</div>
+            </div>
 
-</div>
+        </div>
 
-</div>
+    </section>
 
-</div>
+    <!-- FOOTER -->
 
-</section>
+    <footer>
 
-<!-- FOOTER -->
+        © 2026 StudyAI | Built for Students 🚀
 
-<footer>
+    </footer>
 
-© 2026 StudyAI | Built for Students 🚀
+    <!-- JAVASCRIPT -->
 
-</footer>
+    <script>
 
-<!-- JAVASCRIPT -->
+        const pdfInput =
+            document.getElementById("pdfInput");
 
-<script>
+        const fileName =
+            document.getElementById("fileName");
 
-const pdfInput =
-document.getElementById("pdfInput");
+        const generateBtn =
+            document.getElementById("generateBtn");
 
-const fileName =
-document.getElementById("fileName");
+        const output =
+            document.getElementById("output");
 
-const generateBtn =
-document.getElementById("generateBtn");
+        const loading =
+            document.getElementById("loading");
 
-const output =
-document.getElementById("output");
+        const downloadBtn =
+            document.getElementById("downloadBtn");
 
-const loading =
-document.getElementById("loading");
+        const mode =
+            document.getElementById("mode");
 
-const downloadBtn =
-document.getElementById("downloadBtn");
+        const notesInput =
+            document.getElementById("notesInput");
 
-const mode =
-document.getElementById("mode");
+        const responseText =
+            document.getElementById("responseText");
+        const imageInput =
+            document.getElementById(
+                "imageInput"
+            );
 
-const notesInput =
-document.getElementById("notesInput");
+        // SHOW FILE NAME
 
-// SHOW FILE NAME
+        pdfInput.addEventListener(
+            "change",
+            function () {
 
-pdfInput.addEventListener("change", function(){
+                const file =
+                    this.files[0];
 
-    const file = this.files[0];
+                if (file) {
 
-    if(file){
+                    fileName.innerText =
+                        "Selected: " + file.name;
 
-        fileName.innerText =
-        "Selected: " + file.name;
+                }
 
-    }
+            });
 
-});
+        imageInput.addEventListener(
+            "change",
+            async function () {
 
-// GENERATE NOTES
+                const file =
+                    this.files[0];
 
-generateBtn.addEventListener("click", async () => {
+                if (!file) return;
 
-    const file =
-    pdfInput.files[0];
+                loading.style.display =
+                    "block";
 
-    const notes =
-    notesInput.value;
+                responseText.innerText =
+                    "Extracting handwritten text...";
 
-    if(!file && !notes){
+                try {
 
-        alert(
-        "Please upload PDF or paste notes"
-        );
+                    const result =
+                        await Tesseract.recognize(
+                            file,
+                            "eng"
+                        );
 
-        return;
+                    notesInput.value =
+                        result.data.text;
 
-    }
+                    loading.style.display =
+                        "none";
 
-    const formData =
-    new FormData();
+                    alert(
+                        "Handwritten notes extracted successfully!"
+                    );
 
-    if(file){
+                }
 
-        formData.append("pdf", file);
+                catch (error) {
 
-    }
+                    console.log(error);
 
-    formData.append(
-    "notes",
-    notes
-    );
+                    loading.style.display =
+                        "none";
 
-    formData.append(
-    "mode",
-    mode.value
-    );
+                    responseText.innerText =
+                        "OCR failed";
 
-    // UI RESET
+                }
 
-    loading.style.display =
-    "block";
+            });
+        // GENERATE NOTES
 
-    output.style.display =
-    "none";
+        generateBtn.addEventListener(
+            "click",
+            async function (e) {
 
-    downloadBtn.style.display =
-    "none";
+                e.preventDefault();
 
-    generateBtn.disabled =
-    true;
+                const file =
+                    pdfInput.files[0];
 
-    generateBtn.innerText =
-    "Generating...";
+                const notes =
+                    notesInput.value;
 
-    try{
+                // VALIDATION
 
-        const response =
-        await fetch(
-        "http://localhost:3000/process",
-        {
-            method: "POST",
-            body: formData,
-        });
+                if (!file && !notes) {
 
-        const text =
-        await response.text();
+                    alert(
+                        "Please upload PDF or paste notes"
+                    );
 
-        loading.style.display =
-        "none";
+                    return;
 
-        output.style.display =
-        "block";
+                }
 
-        output.innerText =
-        text;
+                // UI RESET
 
-        window.generatedNotes =
-        text;
+                loading.style.display =
+                    "block";
 
-        downloadBtn.style.display =
-        "inline-block";
+                output.style.display =
+                    "none";
 
-    }
+                downloadBtn.style.display =
+                    "none";
 
-    catch(error){
+                generateBtn.disabled =
+                    true;
 
-        console.log(error);
+                generateBtn.innerText =
+                    "Generating...";
 
-        loading.style.display =
-        "none";
+                let finalNotes = notes;
 
-        output.style.display =
-        "block";
+                // PDF EXTRACTION
 
-        output.innerText =
-        "Failed to generate response";
+                if (file) {
 
-    }
+                    try {
 
-    generateBtn.disabled =
-    false;
+                        const reader =
+                            new FileReader();
 
-    generateBtn.innerText =
-    "Generate Notes";
+                        reader.onload =
+                            async function () {
 
-});
+                                const typedArray =
+                                    new Uint8Array(
+                                        this.result
+                                    );
 
-// DOWNLOAD PDF
+                                const pdf =
+                                    await pdfjsLib
+                                        .getDocument(typedArray)
+                                        .promise;
 
-downloadBtn.addEventListener("click", () => {
+                                let pdfText = "";
 
-    const { jsPDF } =
-    window.jspdf;
+                                for (
+                                    let i = 1;
+                                    i <= pdf.numPages;
+                                    i++
+                                ) {
 
-    const doc =
-    new jsPDF();
+                                    const page =
+                                        await pdf.getPage(i);
 
-    const text =
-    window.generatedNotes || "";
+                                    const content =
+                                        await page.getTextContent();
 
-    const splitText =
-    doc.splitTextToSize(
-    text,
-    180
-    );
+                                    const strings =
+                                        content.items.map(
+                                            item => item.str
+                                        );
 
-    doc.text(
-    splitText,
-    10,
-    10
-    );
+                                    pdfText +=
+                                        strings.join(" ");
 
-    doc.save(
-    "StudyAI-Notes.pdf"
-    );
+                                }
 
-});
+                                finalNotes = pdfText;
 
-</script>
+                                sendToBackend(
+                                    finalNotes
+                                );
 
-<!-- Bootstrap JS -->
+                            };
 
-<script
-src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
+                        reader.readAsArrayBuffer(file);
+
+                    }
+
+                    catch (error) {
+
+                        console.log(error);
+
+                        loading.style.display =
+                            "none";
+
+                        output.style.display =
+                            "block";
+
+                        responseText.innerText =
+                            "Failed to read PDF";
+
+                    }
+
+                }
+
+                else {
+
+                    sendToBackend(
+                        finalNotes
+                    );
+
+                }
+
+            });
+
+        // SEND TO BACKEND
+
+        async function sendToBackend(
+            finalNotes
+        ) {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "http://localhost:3000/process",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                notes: finalNotes,
+
+                                mode: mode.value,
+
+                            }),
+
+                        });
+
+                const text =
+                    await response.text();
+
+                console.log(text);
+
+                // SHOW OUTPUT
+
+                loading.style.display =
+                    "none";
+
+                output.style.display =
+                    "block";
+
+                responseText.innerText =
+                    text;
+
+                // STORE NOTES
+
+                window.generatedNotes =
+                    text;
+
+                // SHOW DOWNLOAD BUTTON
+
+                downloadBtn.style.display =
+                    "inline-block";
+
+            }
+
+            catch (error) {
+
+                console.log(error);
+
+                loading.style.display =
+                    "none";
+
+                output.style.display =
+                    "block";
+
+                responseText.innerText =
+                    "Failed to generate response";
+
+            }
+
+            // RESET BUTTON
+
+            generateBtn.disabled =
+                false;
+
+            generateBtn.innerText =
+                "Generate Notes";
+
+        }
+
+        // DOWNLOAD PDF
+
+        downloadBtn.addEventListener(
+            "click",
+            async () => {
+
+                const { jsPDF } =
+                    window.jspdf;
+
+                const pdf =
+                    new jsPDF(
+                        "p",
+                        "mm",
+                        "a4"
+                    );
+
+                const responseElement =
+                    document.getElementById(
+                        "output"
+                    );
+
+                const canvas =
+                    await html2canvas(
+                        responseElement,
+                        {
+                            scale: 2,
+
+                            scrollY: -window.scrollY,
+
+                            windowWidth:
+                                responseElement.scrollWidth,
+
+                            windowHeight:
+                                responseElement.scrollHeight
+                        }
+                    );
+
+                const imgData =
+                    canvas.toDataURL(
+                        "image/png"
+                    );
+
+                const pageWidth =
+                    pdf.internal.pageSize.getWidth();
+
+                const pageHeight =
+                    pdf.internal.pageSize.getHeight();
+
+                const imgWidth =
+                    pageWidth - 20;
+
+                const imgHeight =
+                    (canvas.height * imgWidth)
+                    / canvas.width;
+
+                let heightLeft =
+                    imgHeight;
+
+                let position = 0;
+
+                // FIRST PAGE
+
+                pdf.addImage(
+                    imgData,
+                    "PNG",
+                    10,
+                    position,
+                    imgWidth,
+                    imgHeight
+                );
+
+                heightLeft -=
+                    pageHeight;
+
+                // EXTRA PAGES
+
+                while (heightLeft > 0) {
+
+                    position =
+                        heightLeft - imgHeight;
+
+                    pdf.addPage();
+
+                    pdf.addImage(
+                        imgData,
+                        "PNG",
+                        10,
+                        position,
+                        imgWidth,
+                        imgHeight
+                    );
+
+                    heightLeft -=
+                        pageHeight;
+
+                }
+
+                pdf.save(
+                    "StudyAI-Handwritten-Notes.pdf"
+                );
+
+            });
+
+    </script>
+
+    <!-- Bootstrap JS -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
 
 </body>
 
