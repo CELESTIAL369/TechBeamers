@@ -9,120 +9,212 @@ const fs = require("fs");
 
 const app = express();
 
+// ===================================
+// MIDDLEWARE
+// ===================================
+
 app.use(cors());
 
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
+// ===================================
+// GROQ CLIENT
+// ===================================
+
 const client = new OpenAI({
+
   apiKey: process.env.GROQ_API_KEY,
+
   baseURL: "https://api.groq.com/openai/v1",
+
 });
+
+// ===================================
+// MULTER CONFIG
+// ===================================
 
 const upload = multer({
+
   dest: "uploads/",
+
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
+
+  fileFilter: (req, file, cb) => {
+
+    if (file.mimetype === "application/pdf") {
+
+      cb(null, true);
+
+    }
+
+    else {
+
+      cb(new Error("Only PDF files are allowed"));
+
+    }
+
+  },
+
 });
 
+// ===================================
+// MAIN ROUTE
+// ===================================
+
 app.post(
+
   "/process",
+
   upload.single("pdf"),
+
   async (req, res) => {
-
-    console.log("BODY:", req.body);
-
-    console.log("FILE:", req.file);
 
     try {
 
-      let notes = req.body.notes || "";
+      // ===================================
+      // CHECK FILE
+      // ===================================
 
-      const mode = req.body.mode;
-
-      // PDF Processing
-
-      if (req.file) {
-
-        console.log("PDF RECEIVED");
-
-        const pdfBuffer =
-        fs.readFileSync(req.file.path);
-
-        const pdfData =
-        await pdfParse(pdfBuffer);
-
-        notes = pdfData.text;
-
-        console.log("PDF TEXT EXTRACTED");
-
-        // delete uploaded file
-
-        fs.unlinkSync(req.file.path);
-
-      }
-
-      // Empty input check
-
-      if (!notes || notes.trim() === "") {
+      if (!req.file) {
 
         return res.status(400).json({
-          error:
-          "Please provide notes or upload a PDF",
+
+          success: false,
+
+          error: "Please upload a PDF file",
+
         });
 
       }
 
+      // ===================================
+      // READ PDF
+      // ===================================
+
+      const pdfBuffer =
+      fs.readFileSync(req.file.path);
+
+      // ===================================
+      // EXTRACT TEXT
+      // ===================================
+
+      const pdfData =
+      await pdfParse(pdfBuffer);
+
+      let notes =
+      pdfData.text.trim();
+
+      // DELETE FILE
+
+      fs.unlinkSync(req.file.path);
+
+      // ===================================
+      // CHECK EXTRACTION
+      // ===================================
+
+      if (!notes || notes.length < 20) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          error:
+          "Could not extract text from PDF. Use typed PDFs only.",
+
+        });
+
+      }
+
+      // ===================================
+      // LIMIT HUGE PDFs
+      // ===================================
+
+      notes = notes.substring(0, 4000);
+
+      // ===================================
+      // MODE
+      // ===================================
+
+      const mode =
+      req.body.mode || "summary";
+
+      // ===================================
+      // PROMPT
+      // ===================================
+
       let prompt = "";
 
-      // Summary Agent
+      // SUMMARY
 
       if (mode === "summary") {
 
         prompt = `
-        Summarize these notes clearly:
+You are an AI study assistant.
 
-        ${notes}
-        `;
+Generate clean study notes.
 
-      }
+Include:
+- Summary
+- Important points
+- Easy explanation
 
-      // Quiz Agent
-
-      else if (mode === "quiz") {
-
-        prompt = `
-        Generate 5 quiz questions from these notes:
-
-        ${notes}
-        `;
+Notes:
+${notes}
+`;
 
       }
 
-      // Revision Agent
+      // REVISION
 
       else if (mode === "revision") {
 
         prompt = `
-        Convert these notes into quick revision points:
+Convert these notes into revision notes.
 
-        ${notes}
-        `;
+Use:
+- Headings
+- Bullet points
+- Short explanations
+
+Notes:
+${notes}
+`;
 
       }
 
-      // Default Agent
+      // QUIZ
+
+      else if (mode === "quiz") {
+
+        prompt = `
+Generate 5 quiz questions with answers.
+
+Notes:
+${notes}
+`;
+
+      }
+
+      // DEFAULT
 
       else {
 
         prompt = `
-        Summarize these notes:
+Summarize these notes clearly.
 
-        ${notes}
-        `;
+Notes:
+${notes}
+`;
 
       }
 
-      console.log("SENDING TO AI");
+      // ===================================
+      // GROQ AI REQUEST
+      // ===================================
 
       const completion =
       await client.chat.completions.create({
@@ -130,37 +222,64 @@ app.post(
         model: "llama-3.1-8b-instant",
 
         messages: [
+
           {
             role: "user",
             content: prompt,
           },
+
         ],
 
       });
 
-      console.log("AI RESPONSE RECEIVED");
+      // ===================================
+      // AI RESPONSE
+      // ===================================
 
       const reply =
       completion.choices[0].message.content;
 
+      // ===================================
+      // SEND RESPONSE
+      // ===================================
+
       res.json({
+
+        success: true,
+
         reply: reply,
+
       });
 
     }
 
+    // ===================================
+    // ERROR HANDLING
+    // ===================================
+
     catch (error) {
 
-      console.log("ERROR:", error);
+      console.log(error);
 
       res.status(500).json({
-        error: "Something went wrong",
+
+        success: false,
+
+        error: error.message ||
+
+        "Something went wrong",
+
       });
 
     }
 
   }
+
 );
+
+// ===================================
+// SERVER
+// ===================================
 
 app.listen(3000, () => {
 
