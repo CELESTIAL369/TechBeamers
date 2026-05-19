@@ -427,12 +427,6 @@ Save notes as downloadable PDF.
 
 <script>
 
-const pdfInput =
-document.getElementById("pdfInput");
-
-const fileName =
-document.getElementById("fileName");
-
 const generateBtn =
 document.getElementById("generateBtn");
 
@@ -448,44 +442,43 @@ document.getElementById("downloadBtn");
 const mode =
 document.getElementById("mode");
 
-// FILE NAME DISPLAY
+// CREATE NOTES INPUT DYNAMICALLY
 
-pdfInput.addEventListener("change", function(){
+const notesBox =
+document.createElement("textarea");
 
-    const file = this.files[0];
+notesBox.className =
+"form-control mt-4";
 
-    if(file){
+notesBox.rows = 8;
 
-        fileName.innerText =
-        "Selected: " + file.name;
+notesBox.placeholder =
+"Paste your study notes here...";
 
-    }
+notesBox.id = "notesInput";
 
-});
+document.querySelector(".upload-card")
+.insertBefore(
+notesBox,
+document.getElementById("mode")
+);
 
 // GENERATE NOTES
 
 generateBtn.addEventListener("click", async () => {
 
-    const file =
-    pdfInput.files[0];
+    const notes =
+    document.getElementById("notesInput").value;
 
-    if(!file){
+    if(!notes){
 
-        alert("Please upload a PDF");
+        alert("Please paste notes");
 
         return;
 
     }
 
-    const formData =
-    new FormData();
-
-    formData.append("pdf", file);
-
-    formData.append("mode", mode.value);
-
-    // RESET UI
+    // UI RESET
 
     loading.style.display = "block";
 
@@ -504,32 +497,32 @@ generateBtn.addEventListener("click", async () => {
         await fetch(
         "http://localhost:3000/process",
         {
+
             method: "POST",
-            body: formData,
+
+            headers: {
+                "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+
+                notes: notes,
+
+                mode: mode.value,
+
+            }),
+
         });
-
-        // CHECK RESPONSE
-
-        if(!response.ok){
-
-            throw new Error(
-            "Server responded with error"
-            );
-
-        }
 
         const data =
         await response.json();
 
-        console.log("AI RESPONSE:", data);
-
-        // STOP LOADING
+        console.log(data);
 
         loading.style.display = "none";
 
         output.style.display = "block";
-
-        // DISPLAY RESPONSE
 
         if(data.reply){
 
@@ -556,18 +549,16 @@ generateBtn.addEventListener("click", async () => {
 
     catch(error){
 
-        console.log("FRONTEND ERROR:", error);
+        console.log(error);
 
         loading.style.display = "none";
 
         output.style.display = "block";
 
         output.innerText =
-        "Failed to generate response";
+        "Server connection failed";
 
     }
-
-    // RESET BUTTON
 
     generateBtn.disabled = false;
 
