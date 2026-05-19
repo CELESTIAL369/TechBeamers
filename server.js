@@ -1,0 +1,79 @@
+require("dotenv").config();
+
+const express = require("express");
+const cors = require("cors");
+const OpenAI = require("openai");
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+const client = new OpenAI({
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: "https://api.groq.com/openai/v1",
+});
+
+app.post("/process", async (req, res) => {
+
+  const notes = req.body.notes;
+  const mode = req.body.mode;
+
+  let prompt = "";
+
+  // Summary Agent
+  if (mode === "summary") {
+    prompt = `Summarize these notes clearly:\n\n${notes}`;
+  }
+
+  // Quiz Agent
+  else if (mode === "quiz") {
+    prompt = `Generate 5 quiz questions from these notes:\n\n${notes}`;
+  }
+
+  // Revision Agent
+  else if (mode === "revision") {
+    prompt = `Convert these notes into quick revision points:\n\n${notes}`;
+  }
+
+  // Default Agent
+  else {
+    prompt = `Summarize these notes:\n\n${notes}`;
+  }
+
+  try {
+
+    const completion = await client.chat.completions.create({
+
+      model: "llama-3.1-8b-instant",
+
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+
+    });
+
+    const reply = completion.choices[0].message.content;
+
+    res.json({
+      reply: reply,
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      error: "Something went wrong",
+    });
+
+  }
+
+});
+
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
+});
