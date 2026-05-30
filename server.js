@@ -66,8 +66,14 @@ app.post(
       let notes =
         req.body.notes || "";
 
+      const trimmedNotes =
+        notes.substring(0, 4000);
+
       const mode =
         req.body.mode || "summary";
+
+      const examType =
+        req.body.examType;
 
       // ======================
       // PDF PROCESSING
@@ -177,160 +183,289 @@ app.post(
       // PROMPT BUILDING
       // ======================
 
-      let prompt = "";
+     let prompt = "";
 
-      // SUMMARY
+// SUMMARY
 
-      if (mode === "summary") {
+if (mode === "summary") {
+
+    if (examType === "upsc") {
+
+        prompt = `
+Generate a UPSC-style analytical summary.
+
+Focus on:
+- conceptual clarity
+- descriptive explanation
+- real-world relevance
+- structured understanding
+
+Notes:
+
+${trimmedNotes}
+`;
+
+    }
+
+    else if (examType === "gate") {
+
+        prompt = `
+Generate a GATE-oriented technical summary.
+
+Focus on:
+- formulas
+- technical concepts
+- concise explanations
+- problem-solving relevance
+
+Notes:
+
+${trimmedNotes}
+`;
+
+    }
+
+    else if (examType === "college") {
+
+        prompt = `
+Generate concise university exam summary notes.
+
+Focus on:
+- definitions
+- important points
+- short explanations
+
+Notes:
+
+${trimmedNotes}
+`;
+
+    }
+
+    else {
 
         prompt = `
 Summarize these notes clearly and professionally:
 
-${notes}
+${trimmedNotes}
 `;
 
-      }
+    }
 
-      // QUIZ
+}
 
-      else if (mode === "quiz") {
+// QUIZ
 
-        prompt = `
-Generate 5 important quiz questions with answers from these notes:
-
-${notes}
-`;
-
-      }
-
-      // REVISION
-
-      else if (mode === "revision") {
-
-        prompt = `
-Convert these notes into short and clean revision points:
-
-${notes}
-`;
-
-      }
-
-      else if (mode === "flashcards") {
+else if (mode === "quiz") {
 
     prompt = `
-Convert these notes into modern quick revision cards.
+Generate 5 important ${examType} level quiz questions with answers from these notes:
 
-Rules:
-- Keep each card concise
-- Add a short title
-- Add 2-3 bullet points
-- Separate every card using:
-
-===CARD===
-
-Example:
-
-===CARD===
-Black Hole
-• Extremely dense object
-• Gravity bends spacetime
-• Light cannot escape
-
-===CARD===
-Wormhole
-• Hypothetical spacetime tunnel
-• Connects distant regions
-• Based on Einstein equations
-
-Notes:
-
-${notes}
+${trimmedNotes}
 `;
 
 }
 
-      // DEFAULT
+// REVISION
 
-      else {
+else if (mode === "revision") {
+
+    if (examType === "upsc") {
 
         prompt = `
-Summarize these notes:
+Generate UPSC-style revision notes.
 
-${ notes }
-        `;
+Focus on:
+- analytical understanding
+- structured points
+- descriptive content
+- current relevance
 
-      }
+Notes:
 
-      console.log(
-        "SENDING TO AI"
-      );
-
-      // ======================
-      // AI REQUEST
-      // ======================
-
-      const completion =
-        await client.chat.completions.create({
-
-          model:
-            "llama-3.1-8b-instant",
-
-          messages: [
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
-
-          temperature: 0.5,
-
-          max_tokens: 1200,
-
-        });
-
-      console.log(
-        "AI RESPONSE RECEIVED"
-      );
-
-      // ======================
-      // CLEAN RESPONSE
-      // ======================
-
-      const reply =
-        completion
-          ?.choices?.[0]
-          ?.message
-          ?.content || "No response generated";
-
-      console.log(
-        "SENDING RESPONSE TO FRONTEND"
-      );
-
-      // ======================
-      // SEND RESPONSE
-      // ======================
-
-      return res
-        .status(200)
-        .send(reply);
+${trimmedNotes}
+`;
 
     }
+
+    else if (examType === "gate") {
+
+        prompt = `
+Generate GATE revision notes.
+
+Focus on:
+- formulas
+- technical concepts
+- numerical understanding
+- concise revision
+
+Notes:
+
+${trimmedNotes}
+`;
+
+    }
+
+    else if (examType === "college") {
+
+        prompt = `
+Generate concise university exam revision notes.
+
+Focus on:
+- important definitions
+- short explanations
+- exam-oriented points
+
+Notes:
+
+${trimmedNotes}
+`;
+
+    }
+
+    else {
+
+        prompt = `
+Convert these notes into short and clean revision points:
+
+${trimmedNotes}
+`;
+
+    }
+
+}
+
+// FLASHCARDS
+
+else if (mode === "flashcards") {
+
+    prompt = `
+Generate ${examType} style quick revision cards.
+
+Rules:
+- Add short title
+- Add 2-3 concise points
+- Separate cards using ===CARD===
+
+Notes:
+
+${trimmedNotes}
+`;
+
+}
+
+// PODCAST
+
+else if (mode === "podcast") {
+
+    prompt = `
+Turn these notes into a realistic educational podcast conversation.
+
+Rules:
+- Create a natural discussion between two people
+- Speaker 1 is Alex (host)
+- Speaker 2 is Sarah (expert)
+- Make it sound human and engaging
+- Avoid robotic explanations
+- Add curiosity, reactions, and follow-up questions
+- Explain concepts simply and conversationally
+- Keep responses short and natural
+- DO NOT use symbols like 🎙 or 🧠
+- ONLY use:
+
+Alex:
+Sarah:
+
+- Do NOT narrate actions
+- Make it feel like a real Spotify educational podcast
+
+Notes:
+${trimmedNotes}
+`;
+
+}
+
+// DEFAULT
+
+else {
+
+    prompt = `
+Summarize these notes:
+
+${trimmedNotes}
+`;
+
+}
+
+console.log(
+    "SENDING TO AI"
+);
+// ======================
+// AI REQUEST
+// ======================
+
+const completion =
+  await client.chat.completions.create({
+
+    model:
+      "llama-3.1-8b-instant",
+
+    messages: [
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+
+    temperature: 0.5,
+
+    max_tokens: 1200,
+
+  });
+
+console.log(
+  "AI RESPONSE RECEIVED"
+);
+
+// ======================
+// CLEAN RESPONSE
+// ======================
+
+const reply =
+  completion
+    ?.choices?.[0]
+    ?.message
+    ?.content || "No response generated";
+
+console.log(
+  "SENDING RESPONSE TO FRONTEND"
+);
+
+// ======================
+// SEND RESPONSE
+// ======================
+
+return res
+  .status(200)
+  .send(reply);
+
+  }
 
     catch (error) {
 
-      console.log(
-        "========== ERROR =========="
-      );
+  console.log(
+    "========== ERROR =========="
+  );
 
-      console.log(error);
+  console.log(error);
 
-      return res
-        .status(500)
-        .send(
-          "Something went wrong while processing request"
-        );
+  return res
+    .status(500)
+    .send(
+      "Something went wrong while processing request"
+    );
 
-    }
+}
 
   }
 );
@@ -344,7 +479,7 @@ const PORT = 3000;
 app.listen(PORT, () => {
 
   console.log(
-    `Server running on port ${ PORT } `
+    `Server running on port ${PORT} `
   );
 
 });
